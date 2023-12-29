@@ -8,6 +8,12 @@
           @confirm-handler="confirmHandler"
         />
       </div>
+      <q-input
+        outlined
+        v-model="searchText"
+        label="請輸入搜索"
+        @input="handleSearch"
+      />
       <add-user-form
         :showAddUserForm="showAddUserForm"
         @add-user="addUser"
@@ -28,12 +34,12 @@
   </q-page>
 </template>
 <script>
-import { reactive, onMounted, ref } from "vue";
+import { reactive, onMounted, ref, watch } from "vue";
 import axios from "axios";
 import QTableWrapper from "src/components/QTableWrapper.vue";
 import AddUserButton from "src/components/UserBtn.vue";
 import DeleteConfirm from "src/components/DeleteConfirm.vue";
-import formatBirthday from "src/utils/formatBirthday.js";
+import { fetchData } from "src/utils/getAllUser.js";
 import { employeeTableHead } from "src/utils/employeeTableHead.js";
 import AddUserForm from "src/components/AddUser.vue";
 export default {
@@ -48,10 +54,39 @@ export default {
     const showAddUserForm = ref(false);
     const confirm = ref(false);
     const selected = ref([]);
+    const searchText = ref("");
     const state = reactive({
       columns: employeeTableHead,
       rows: [],
     });
+    watch(searchText, async (newSearchText, oldSearchText) => {
+      if (oldSearchText.length !== 0 && newSearchText.length == 0) {
+        state.rows = await fetchData();
+      } else {
+        await handleSearch(newSearchText);
+      }
+    });
+    const handleSearch = async (query) => {
+      try {
+        const response = await axios.post(
+          "http://35.194.177.50:7777/members/search",
+          {
+            filter: {
+              name: query,
+            },
+            sort: "-name",
+          }
+        );
+        const { members } = response.data;
+        if (members.length !== 0) {
+          state.rows = members;
+        } else {
+          return;
+        }
+      } catch (error) {
+        console.error("Error searching members:", error);
+      }
+    };
     const confirmHandler = () => {
       if (selected.value.length === 0) {
         return;
@@ -73,15 +108,7 @@ export default {
       selected.value = newValue;
     };
     onMounted(async () => {
-      try {
-        const response = await axios.get("http://35.194.177.50:7777/members");
-        state.rows = response.data.members.map((member) => ({
-          ...member,
-          birthday: formatBirthday(member.birthday),
-        }));
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      }
+      state.rows = await fetchData();
     });
     return {
       selected,
@@ -90,8 +117,10 @@ export default {
       confirmHandler,
       showAddUserForm,
       deleteConform,
+      handleSearch,
       addUser,
       updateSelected,
+      searchText,
     };
   },
 };
