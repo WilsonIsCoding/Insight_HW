@@ -23,6 +23,12 @@ export default {
     watch(tableSelected, (newValue) => {
       emit("update:selected", newValue);
     });
+    watch(
+      () => props.selected,
+      (newVal) => {
+        tableSelected.value = newVal;
+      }
+    );
     return {
       tableSelected,
       tableData,

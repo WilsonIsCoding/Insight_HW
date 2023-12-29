@@ -63,6 +63,7 @@ export default {
         (item1) => !selected.value.some((item2) => item2.name === item1.name)
       );
       confirm.value = false;
+      selected.value = [];
     };
     const addUser = (userData) => {
       state.rows.unshift(userData);
