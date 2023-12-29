@@ -3,23 +3,11 @@
     <div class="block-item">
       <div class="row justify-between items-center">
         <div class="text-h6">員工基本資訊</div>
-        <div>
-          <q-btn
-            class="q-mr-sm"
-            color="primary"
-            label="新增"
-            @click="showAddUserForm = true"
-          />
-          <q-btn
-            label="刪除"
-            color="white"
-            text-color="black"
-            @click="confirmHandler()"
-          />
-        </div>
+        <add-user-button
+          @add-user="showAddUserForm = true"
+          @confirm-handler="confirmHandler"
+        />
       </div>
-
-      <!-- 新增用戶表單 -->
       <q-dialog v-model="showAddUserForm" persistent>
         <q-card>
           <q-card-section>
@@ -81,37 +69,17 @@
         </q-card>
       </q-dialog>
 
-      <q-table
-        flat
-        bordered
-        :rows="state.rows"
-        :columns="state.columns"
-        row-key="name"
-        selection="multiple"
-        v-model:selected="selected"
-      ></q-table>
-      <div class="">
-        <q-dialog v-model="confirm" persistent>
-          <q-card>
-            <q-card-section class="row items-center">
-              <span class="q-ml-sm"
-                >是否確定刪除這{{ selected.length }}筆資料？</span
-              >
-            </q-card-section>
-
-            <q-card-actions align="right">
-              <q-btn flat label="取消" color="primary" v-close-popup />
-              <q-btn
-                flat
-                @click="deleteConform()"
-                label="確認"
-                color="primary"
-                v-close-popup
-              />
-            </q-card-actions>
-          </q-card>
-        </q-dialog>
-      </div>
+      <q-table-wrapper
+        :data="state"
+        :selected="selected"
+        @update:selected="updateSelected"
+      ></q-table-wrapper>
+      <delete-confirm
+        :confirm="confirm"
+        :selected="selected"
+        @cancel="confirm = false"
+        @delete-confirmed="deleteConform"
+      ></delete-confirm>
     </div>
   </q-page>
 </template>
@@ -119,13 +87,15 @@
 <script>
 import { reactive, onMounted, ref } from "vue";
 import axios from "axios";
-import QTable from "src/components/QTable.vue";
-
+import QTableWrapper from "src/components/QTableWrapper.vue";
+import AddUserButton from "src/components/UserBtn.vue";
+import DeleteConfirm from "src/components/DeleteConfirm.vue";
 export default {
   name: "IndexPage",
-
   components: {
-    QTable,
+    QTableWrapper,
+    AddUserButton,
+    DeleteConfirm,
   },
 
   setup() {
@@ -205,7 +175,9 @@ export default {
       };
       showAddUserForm.value = false;
     };
-
+    const updateSelected = (newValue) => {
+      selected.value = newValue;
+    };
     onMounted(async () => {
       try {
         const response = await axios.get("http://35.194.177.50:7777/members");
@@ -226,6 +198,7 @@ export default {
       showAddUserForm,
       deleteConform,
       addUser,
+      updateSelected,
     };
   },
 };
