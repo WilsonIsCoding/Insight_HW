@@ -8,66 +8,11 @@
           @confirm-handler="confirmHandler"
         />
       </div>
-      <q-dialog v-model="showAddUserForm" persistent>
-        <q-card>
-          <q-card-section>
-            <q-form @submit="addUser()">
-              <q-input
-                v-model="newUser.name"
-                label="姓名"
-                dense
-                outlined
-                clearable
-                required
-                :rules="[(val) => val.length !== 0 || '此欄位為必填']"
-              />
-              <q-input
-                v-model.number="newUser.cellphone"
-                label="手機"
-                mask="(###) ### - ####"
-                dense
-                required
-                outlined
-                clearable
-                unmasked-value
-              />
-
-              <q-input
-                v-model="newUser.email"
-                label="電子信箱"
-                dense
-                outlined
-                required
-                clearable
-                :rules="[
-                  (val, rules) =>
-                    rules.email(val) || 'Please enter a valid email address',
-                ]"
-              />
-              <div class="">
-                <q-radio v-model="newUser.gender" label="男" val="男" />
-                <q-radio v-model="newUser.gender" label="女" val="女" />
-              </div>
-              <q-date
-                v-model="newUser.birthday"
-                label="生日"
-                dense
-                outlined
-                required
-              />
-              <q-card-actions align="right">
-                <q-btn
-                  flat
-                  label="取消"
-                  color="primary"
-                  @click="showAddUserForm = false"
-                />
-                <q-btn type="submit" flat label="新增用戶" color="primary" />
-              </q-card-actions>
-            </q-form>
-          </q-card-section>
-        </q-card>
-      </q-dialog>
+      <add-user-form
+        :showAddUserForm="showAddUserForm"
+        @add-user="addUser"
+        @close-form="showAddUserForm = false"
+      ></add-user-form>
       <q-table-wrapper
         :data="state"
         :selected="selected"
@@ -90,24 +35,18 @@ import AddUserButton from "src/components/UserBtn.vue";
 import DeleteConfirm from "src/components/DeleteConfirm.vue";
 import formatBirthday from "src/utils/formatBirthday.js";
 import { employeeTableHead } from "src/utils/employeeTableHead.js";
+import AddUserForm from "src/components/AddUser.vue";
 export default {
   name: "IndexPage",
   components: {
     QTableWrapper,
     AddUserButton,
     DeleteConfirm,
+    AddUserForm,
   },
   setup() {
-    const userInitial = {
-      name: "",
-      phone: "",
-      email: "",
-      gender: "男",
-      birthday: ref("2019/02/01"),
-    };
     const showAddUserForm = ref(false);
     const confirm = ref(false);
-    const newUser = ref(userInitial);
     const selected = ref([]);
     const state = reactive({
       columns: employeeTableHead,
@@ -125,10 +64,8 @@ export default {
       );
       confirm.value = false;
     };
-    const addUser = () => {
-      let formData = { ...newUser.value }; // 使用 { ...newUser.value } 創建一個新的對象
-      state.rows.unshift(formData);
-      newUser.value = userInitial;
+    const addUser = (userData) => {
+      state.rows.unshift(userData);
       showAddUserForm.value = false;
     };
     const updateSelected = (newValue) => {
@@ -147,7 +84,6 @@ export default {
     });
     return {
       selected,
-      newUser,
       state,
       confirm,
       confirmHandler,
