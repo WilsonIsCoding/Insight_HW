@@ -1,7 +1,7 @@
 <template>
   <q-page class="row justify-left q-pa-lg">
     <div class="block-item">
-      <div class="row justify-between items-center">
+      <div class="row justify-between items-center q-mb-md">
         <div class="text-h6">員工基本資訊</div>
         <add-user-button
           @add-user="showAddUserForm = true"
