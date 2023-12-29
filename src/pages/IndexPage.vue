@@ -68,7 +68,6 @@
           </q-card-section>
         </q-card>
       </q-dialog>
-
       <q-table-wrapper
         :data="state"
         :selected="selected"
@@ -83,13 +82,14 @@
     </div>
   </q-page>
 </template>
-
 <script>
 import { reactive, onMounted, ref } from "vue";
 import axios from "axios";
 import QTableWrapper from "src/components/QTableWrapper.vue";
 import AddUserButton from "src/components/UserBtn.vue";
 import DeleteConfirm from "src/components/DeleteConfirm.vue";
+import formatBirthday from "src/utils/formatBirthday.js";
+import { employeeTableHead } from "src/utils/employeeTableHead.js";
 export default {
   name: "IndexPage",
   components: {
@@ -97,60 +97,22 @@ export default {
     AddUserButton,
     DeleteConfirm,
   },
-
   setup() {
+    const userInitial = {
+      name: "",
+      phone: "",
+      email: "",
+      gender: "男",
+      birthday: ref("2019/02/01"),
+    };
     const showAddUserForm = ref(false);
     const confirm = ref(false);
-    const newUser = ref({ gender: "男", birthday: ref("2019/02/01") });
+    const newUser = ref(userInitial);
     const selected = ref([]);
     const state = reactive({
-      columns: [
-        {
-          name: "name",
-          label: "姓名",
-          align: "left",
-          field: "name",
-          sortable: true,
-        },
-        {
-          name: "cellphone",
-          label: "手機",
-          align: "left",
-          field: "cellphone",
-          sortable: true,
-        },
-        {
-          name: "email",
-          label: "信箱",
-          align: "left",
-          field: "email",
-          sortable: true,
-        },
-        {
-          name: "gender",
-          label: "性別",
-          align: "left",
-          field: "gender",
-          sortable: true,
-        },
-        {
-          name: "birthday",
-          label: "生日",
-          align: "left",
-          field: "birthday",
-        },
-      ],
+      columns: employeeTableHead,
       rows: [],
     });
-    const formatBirthday = (isoDate) => {
-      let date;
-      const adjustDate = new Date(isoDate) == "Invalid Date";
-      date = new Date(isoDate.slice(0, adjustDate ? 9 : 10));
-      const year = date.getFullYear();
-      const month = String(date.getMonth() + 1).padStart(2, "0");
-      const day = String(date.getDate()).padStart(2, "0");
-      return `${year}/${month}/${day}`;
-    };
     const confirmHandler = () => {
       if (selected.value.length === 0) {
         return;
@@ -166,13 +128,7 @@ export default {
     const addUser = () => {
       let formData = { ...newUser.value }; // 使用 { ...newUser.value } 創建一個新的對象
       state.rows.unshift(formData);
-      newUser.value = {
-        name: "",
-        phone: "",
-        email: "",
-        gender: "男",
-        birthday: ref("2019/02/01"),
-      };
+      newUser.value = userInitial;
       showAddUserForm.value = false;
     };
     const updateSelected = (newValue) => {
@@ -203,7 +159,6 @@ export default {
   },
 };
 </script>
-
 <style lang="scss" scoped>
 .block-item {
   min-width: 400px;
