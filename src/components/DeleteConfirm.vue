@@ -29,11 +29,9 @@ export default {
       }
     );
     const cancel = () => {
-      localConfirm.value = false;
       emit("cancel");
     };
     const deleteConfirmed = () => {
-      localConfirm.value = false;
       emit("delete-confirmed");
     };
     return {
