@@ -19,7 +19,7 @@
 </p>
 
 <h3>番外</h3>
-<p>雖然作業沒有要求，但本來想說最近有在看github action，就順便部署上github page。
+<p>雖然作業沒有要求，但本來想說最近有在看github action，就順便部署上github page。</br>
 結！！果！！ 因為api 是HTTP，github page 是https，跨域問題api打不過，只能ＱＱ了。
 </p>
 
